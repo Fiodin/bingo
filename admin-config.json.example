@@ -1,0 +1,6 @@
+{
+  "username": "admin",
+  "password": "$2b$10$...",
+  "_comment": "WICHTIG: Passwort nach Installation ändern!",
+  "_password_plain": "DEIN-SICHERES-PASSWORT-HIER"
+}

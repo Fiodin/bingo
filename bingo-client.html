@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Bullshit-Bingo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+        
+        .player-info {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+        }
+        
+        .player-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .status {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .status.connected {
+            color: #10b981;
+        }
+        
+        .status.disconnected {
+            color: #ef4444;
+        }
+        
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .bingo-cell {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bingo-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .bingo-cell.clicked {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+        
+        .bingo-cell.clicked::after {
+            content: '✓';
+            position: absolute;
+            font-size: 60px;
+            color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+        
+        .reset-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .counter {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        /* Leaderboard */
+        .leaderboard {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .leaderboard h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        .leaderboard-list {
+            list-style: none;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .leaderboard-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .leaderboard-item.bingo {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .player-rank {
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 10px;
+            min-width: 25px;
+        }
+        
+        .leaderboard-item.bingo .player-rank {
+            color: #92400e;
+        }
+        
+        .player-details {
+            flex: 1;
+        }
+        
+        .player-score {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .bingo-badge {
+            background: #ef4444;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        /* Name Input Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .modal input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .modal button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .leaderboard {
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .bingo-cell {
+                font-size: 11px;
+                padding: 8px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Name Input Modal -->
+    <div class="modal" id="nameModal">
+        <div class="modal-content">
+            <h2>🎯 Willkommen zum Bullshit-Bingo!</h2>
+            <p style="margin-bottom: 20px; color: #666;">Gib deinen Namen ein, um zu starten:</p>
+            <input type="text" id="playerName" placeholder="Dein Name" maxlength="20" autofocus>
+            <button onclick="startGame()">Los geht's!</button>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <!-- Bingo Board -->
+        <div class="container">
+            <h1>🎯 Bullshit-Bingo</h1>
+            <div class="subtitle">AI & Low-Code/No-Code Seminar</div>
+            
+            <div class="player-info">
+                <div class="player-name" id="displayName">Spieler</div>
+                <div class="status disconnected" id="connectionStatus">Verbinde...</div>
+            </div>
+            
+            <div class="counter">Getroffen: <span id="counter">0</span> / 9</div>
+            
+            <div class="bingo-grid" id="bingoGrid">
+                <div class="bingo-cell" onclick="toggleCell(this)">
+                    "Demokratisierung der Entwicklung"
+                </div>
+                <div class="bingo-cell" onclick="toggleCell(this)">
+                    "Citizen Developer"
+                </div>
+                <div class="bingo-cell" onclick="toggleCell(this)">
+                    "Game Changer"
+                </div>
+                <div class="bingo-cell" onclick="toggleCell(this)">
+                    "10x schneller entwickeln"
+                </div>
+                <div class="bingo-cell" onclick="toggleCell(this)">
+                    "Keine Programmierkenntnisse nötig"
+                </div>
+                <div class="bingo-cell" onclick="toggleCell(this)">
+                    "KI-gestützte Automatisierung"
+                </div>
+                <div class="bingo-cell" onclick="toggleCell(this)">
+                    "Disruption der IT-Branche"
+                </div>
+                <div class="bingo-cell" onclick="toggleCell(this)">
+                    "Drag & Drop"
+                </div>
+                <div class="bingo-cell" onclick="toggleCell(this)">
+                    "Jeder kann jetzt Apps entwickeln"
+                </div>
+            </div>
+            
+            <button class="reset-btn" onclick="resetBingo()">🔄 Bingo zurücksetzen</button>
+        </div>
+        
+        <!-- Leaderboard -->
+        <div class="leaderboard">
+            <h2>🏆 Leaderboard</h2>
+            <ul class="leaderboard-list" id="leaderboardList">
+                <li style="text-align: center; color: #999; padding: 20px;">
+                    Warte auf Spieler...
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        let ws;
+        let playerId;
+        let playerName;
+        let score = 0;
+        let hasBingo = false;
+        
+        // WebSocket Verbindung
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = () => {
+                console.log('WebSocket verbunden');
+                document.getElementById('connectionStatus').textContent = '🟢 Verbunden';
+                document.getElementById('connectionStatus').className = 'status connected';
+                
+                // Spieler registrieren
+                if (playerId && playerName) {
+                    ws.send(JSON.stringify({
+                        type: 'register',
+                        playerId: playerId,
+                        name: playerName
+                    }));
+                }
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'leaderboard') {
+                    updateLeaderboard(data.data);
+                }
+            };
+            
+            ws.onclose = () => {
+                console.log('WebSocket getrennt');
+                document.getElementById('connectionStatus').textContent = '🔴 Getrennt';
+                document.getElementById('connectionStatus').className = 'status disconnected';
+                
+                // Versuche nach 3 Sekunden wieder zu verbinden
+                setTimeout(connectWebSocket, 3000);
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket Fehler:', error);
+            };
+        }
+        
+        // Spiel starten
+        function startGame() {
+            const nameInput = document.getElementById('playerName');
+            const name = nameInput.value.trim();
+            
+            if (name === '') {
+                alert('Bitte gib einen Namen ein!');
+                return;
+            }
+            
+            playerName = name;
+            playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            document.getElementById('displayName').textContent = playerName;
+            document.getElementById('nameModal').style.display = 'none';
+            
+            connectWebSocket();
+        }
+        
+        // Zelle anklicken
+        function toggleCell(cell) {
+            cell.classList.toggle('clicked');
+            updateScore();
+        }
+        
+        // Score aktualisieren
+        function updateScore() {
+            score = document.querySelectorAll('.bingo-cell.clicked').length;
+            document.getElementById('counter').textContent = score;
+            
+            // Prüfe auf Bingo
+            const previousBingo = hasBingo;
+            hasBingo = (score === 9);
+            
+            if (hasBingo && !previousBingo) {
+                setTimeout(() => {
+                    alert('🎉 BINGO! Du hast alle Buzzwords gehört! 🎉');
+                }, 300);
+            }
+            
+            // Sende Update an Server
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'update',
+                    playerId: playerId,
+                    score: score,
+                    bingo: hasBingo
+                }));
+            }
+        }
+        
+        // Bingo zurücksetzen
+        function resetBingo() {
+            document.querySelectorAll('.bingo-cell').forEach(cell => {
+                cell.classList.remove('clicked');
+            });
+            score = 0;
+            hasBingo = false;
+            document.getElementById('counter').textContent = '0';
+            
+            // Sende Reset an Server
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'reset',
+                    playerId: playerId
+                }));
+            }
+        }
+        
+        // Leaderboard aktualisieren
+        function updateLeaderboard(players) {
+            const list = document.getElementById('leaderboardList');
+            
+            if (players.length === 0) {
+                list.innerHTML = '<li style="text-align: center; color: #999; padding: 20px;">Warte auf Spieler...</li>';
+                return;
+            }
+            
+            list.innerHTML = players.map((player, index) => {
+                const isBingo = player.bingo ? ' bingo' : '';
+                const bingoEmoji = player.bingo ? ' 🎉' : '';
+                const badge = player.bingo ? '<span class="bingo-badge">BINGO!</span>' : '';
+                
+                return `
+                    <li class="leaderboard-item${isBingo}">
+                        <span class="player-rank">#${index + 1}</span>
+                        <div class="player-details">
+                            <strong>${player.name}${bingoEmoji}</strong>
+                        </div>
+                        <span class="player-score">${player.score}/9</span>
+                        ${badge}
+                    </li>
+                `;
+            }).join('');
+        }
+        
+        // Enter-Taste im Name-Input
+        document.getElementById('playerName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                startGame();
+            }
+        });
+    </script>
+</body>
+</html>

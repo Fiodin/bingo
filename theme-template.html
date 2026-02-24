@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bullshit-Bingo - {{THEME_TITLE}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, {{THEME_COLOR}} 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: #e5e7eb;
+            transform: translateX(-5px);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+        
+        .player-info {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+        }
+        
+        .player-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: {{THEME_COLOR}};
+            margin-bottom: 5px;
+        }
+        
+        .status {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .status.connected {
+            color: #10b981;
+        }
+        
+        .status.disconnected {
+            color: #ef4444;
+        }
+        
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .bingo-cell {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: 3px solid {{THEME_COLOR}};
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bingo-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .bingo-cell.clicked {
+            background: linear-gradient(135deg, {{THEME_COLOR}} 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+        
+        .bingo-cell.clicked::after {
+            content: '✓';
+            position: absolute;
+            font-size: 60px;
+            color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+        
+        .reset-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, {{THEME_COLOR}} 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .counter {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: {{THEME_COLOR}};
+            font-weight: 600;
+        }
+        
+        /* Leaderboard */
+        .leaderboard {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .leaderboard h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        .leaderboard-list {
+            list-style: none;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .leaderboard-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .leaderboard-item.bingo {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .player-rank {
+            font-weight: bold;
+            color: {{THEME_COLOR}};
+            margin-right: 10px;
+            min-width: 25px;
+        }
+        
+        .leaderboard-item.bingo .player-rank {
+            color: #92400e;
+        }
+        
+        .player-details {
+            flex: 1;
+        }
+        
+        .player-score {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .bingo-badge {
+            background: #ef4444;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .row-badges {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+        
+        .row-badge {
+            background: rgba(102, 126, 234, 0.8);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .leaderboard-item.bingo .row-badge {
+            background: rgba(146, 64, 14, 0.8);
+        }
+        
+        /* Name Input Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .modal input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid {{THEME_COLOR}};
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .modal button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, {{THEME_COLOR}} 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .leaderboard {
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .bingo-cell {
+                font-size: 11px;
+                padding: 8px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Name Input Modal -->
+    <div class="modal" id="nameModal">
+        <div class="modal-content">
+            <h2>🎯 Willkommen zum Bullshit-Bingo!</h2>
+            <p style="margin-bottom: 20px; color: #666;">Gib deinen Namen ein, um zu starten:</p>
+            <input type="text" id="playerName" placeholder="Dein Name" maxlength="20" autofocus>
+            <button onclick="startGame()">Los geht's!</button>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal" style="display: none;">
+        <div class="modal-content">
+            <h2>⚙️ Einstellungen</h2>
+            <p style="margin-bottom: 20px; color: #666;">
+                Aktueller Spieler: <strong id="currentPlayerName"></strong>
+            </p>
+            
+            <button onclick="changeName()" style="margin-bottom: 10px;">
+                👤 Namen ändern
+            </button>
+            
+            <button onclick="clearAllData()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); margin-bottom: 10px;">
+                🗑️ Alle Daten löschen
+            </button>
+            
+            <button onclick="closeSettings()" style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">
+                ← Zurück
+            </button>
+            
+            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                Dein Spielstand wird automatisch gespeichert und bleibt auch nach einem Reload erhalten.
+            </p>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <!-- Bingo Board -->
+        <div class="container">
+            <a href="/" class="back-button">← Zurück zur Themenauswahl</a>
+            
+            <h1>🎯 Bullshit-Bingo</h1>
+            <div class="subtitle">{{THEME_TITLE}}</div>
+            
+            <div class="player-info">
+                <div class="player-name" id="displayName">Spieler</div>
+                <div class="status disconnected" id="connectionStatus">Verbinde...</div>
+            </div>
+            
+            <div class="counter">Getroffen: <span id="counter">0</span> / 9</div>
+            
+            <div class="bingo-grid" id="bingoGrid">
+                <!-- Wird dynamisch mit JavaScript gefüllt -->
+            </div>
+            
+            <button class="reset-btn" onclick="resetBingo()">🔄 Bingo zurücksetzen</button>
+            
+            <button class="reset-btn" onclick="showSettings()" style="margin-top: 10px; background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">
+                ⚙️ Einstellungen
+            </button>
+        </div>
+        
+        <!-- Leaderboard -->
+        <div class="leaderboard">
+            <h2>🏆 Leaderboard</h2>
+            <ul class="leaderboard-list" id="leaderboardList">
+                <li style="text-align: center; color: #999; padding: 20px;">
+                    Warte auf Spieler...
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        const THEME_ID = '{{THEME_ID}}';
+        let ws;
+        let playerId;
+        let playerName;
+        let score = 0;
+        let hasBingo = false;
+        let bingoWords = [];
+        
+        // LocalStorage Keys
+        const STORAGE_KEY_PREFIX = 'bingo_';
+        const STORAGE_KEY_PLAYER = STORAGE_KEY_PREFIX + 'player';
+        const STORAGE_KEY_STATE = STORAGE_KEY_PREFIX + 'state_' + THEME_ID;
+        
+        // Spieler-Daten speichern
+        function savePlayerData() {
+            const playerData = {
+                playerId: playerId,
+                playerName: playerName
+            };
+            localStorage.setItem(STORAGE_KEY_PLAYER, JSON.stringify(playerData));
+        }
+        
+        // Spieler-Daten laden
+        function loadPlayerData() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY_PLAYER);
+                if (data) {
+                    const playerData = JSON.parse(data);
+                    playerId = playerData.playerId;
+                    playerName = playerData.playerName;
+                    return true;
+                }
+            } catch (error) {
+                console.error('Fehler beim Laden der Spielerdaten:', error);
+            }
+            return false;
+        }
+        
+        // Spielstand speichern
+        function saveGameState() {
+            const clickedIndices = [];
+            document.querySelectorAll('.bingo-cell').forEach((cell, index) => {
+                if (cell.classList.contains('clicked')) {
+                    clickedIndices.push(index);
+                }
+            });
+            
+            const gameState = {
+                clickedIndices: clickedIndices,
+                score: score,
+                hasBingo: hasBingo,
+                timestamp: Date.now()
+            };
+            
+            localStorage.setItem(STORAGE_KEY_STATE, JSON.stringify(gameState));
+        }
+        
+        // Spielstand laden
+        function loadGameState() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY_STATE);
+                if (data) {
+                    const gameState = JSON.parse(data);
+                    
+                    // Zellen wiederherstellen
+                    const cells = document.querySelectorAll('.bingo-cell');
+                    gameState.clickedIndices.forEach(index => {
+                        if (cells[index]) {
+                            cells[index].classList.add('clicked');
+                        }
+                    });
+                    
+                    score = gameState.score;
+                    hasBingo = gameState.hasBingo;
+                    document.getElementById('counter').textContent = score;
+                    
+                    console.log('Spielstand wiederhergestellt:', gameState);
+                    return true;
+                }
+            } catch (error) {
+                console.error('Fehler beim Laden des Spielstands:', error);
+            }
+            return false;
+        }
+        
+        // Alle Daten für dieses Thema löschen
+        function clearGameState() {
+            localStorage.removeItem(STORAGE_KEY_STATE);
+        }
+        
+        // Bingo-Wörter vom Server laden
+        async function loadBingoWords() {
+            try {
+                const response = await fetch('/api/themes');
+                const themes = await response.json();
+                bingoWords = themes[THEME_ID].words;
+                
+                // Grid mit Wörtern füllen
+                const grid = document.getElementById('bingoGrid');
+                grid.innerHTML = bingoWords.map(word => 
+                    `<div class="bingo-cell" onclick="toggleCell(this)">${word}</div>`
+                ).join('');
+                
+                // Spielstand wiederherstellen
+                loadGameState();
+            } catch (error) {
+                console.error('Fehler beim Laden der Wörter:', error);
+            }
+        }
+        
+        // WebSocket Verbindung
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = () => {
+                console.log('WebSocket verbunden');
+                document.getElementById('connectionStatus').textContent = '🟢 Verbunden';
+                document.getElementById('connectionStatus').className = 'status connected';
+                
+                // Raum beitreten
+                ws.send(JSON.stringify({
+                    type: 'join',
+                    roomId: THEME_ID
+                }));
+                
+                // Spieler registrieren
+                if (playerId && playerName) {
+                    ws.send(JSON.stringify({
+                        type: 'register',
+                        playerId: playerId,
+                        name: playerName,
+                        roomId: THEME_ID
+                    }));
+                }
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'leaderboard') {
+                    updateLeaderboard(data.data);
+                }
+            };
+            
+            ws.onclose = () => {
+                console.log('WebSocket getrennt');
+                document.getElementById('connectionStatus').textContent = '🔴 Getrennt';
+                document.getElementById('connectionStatus').className = 'status disconnected';
+                
+                setTimeout(connectWebSocket, 3000);
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket Fehler:', error);
+            };
+        }
+        
+        // Spiel starten
+        function startGame() {
+            const nameInput = document.getElementById('playerName');
+            const name = nameInput.value.trim();
+            
+            if (name === '') {
+                alert('Bitte gib einen Namen ein!');
+                return;
+            }
+            
+            playerName = name;
+            
+            // Neue Player ID nur wenn nicht vorhanden
+            if (!playerId) {
+                playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+            
+            // Spieler-Daten speichern
+            savePlayerData();
+            
+            document.getElementById('displayName').textContent = playerName;
+            document.getElementById('nameModal').style.display = 'none';
+            
+            connectWebSocket();
+        }
+        
+        // Beim Laden prüfen ob Spieler schon bekannt ist
+        function checkExistingPlayer() {
+            if (loadPlayerData()) {
+                // Spieler existiert bereits
+                document.getElementById('displayName').textContent = playerName;
+                document.getElementById('nameModal').style.display = 'none';
+                connectWebSocket();
+                return true;
+            }
+            return false;
+        }
+        
+        // Zelle anklicken
+        function toggleCell(cell) {
+            cell.classList.toggle('clicked');
+            updateScore();
+            saveGameState(); // Spielstand nach jedem Klick speichern
+        }
+        
+        // Score aktualisieren
+        function updateScore() {
+            score = document.querySelectorAll('.bingo-cell.clicked').length;
+            document.getElementById('counter').textContent = score;
+            
+            const previousBingo = hasBingo;
+            hasBingo = (score === 9);
+            
+            // Prüfe auf Reihen/Spalten/Diagonalen
+            const rows = checkRows();
+            
+            if (hasBingo && !previousBingo) {
+                setTimeout(() => {
+                    alert('🎉 BINGO! Du hast alle Buzzwords gehört! 🎉');
+                }, 300);
+            }
+            
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'update',
+                    playerId: playerId,
+                    roomId: THEME_ID,
+                    score: score,
+                    bingo: hasBingo,
+                    rows: rows  // Neue Info über Reihen
+                }));
+            }
+        }
+        
+        // Reihen, Spalten und Diagonalen prüfen
+        function checkRows() {
+            const cells = document.querySelectorAll('.bingo-cell');
+            const grid = [];
+            
+            // Grid als 3x3 Array aufbauen
+            for (let i = 0; i < 9; i++) {
+                grid.push(cells[i].classList.contains('clicked'));
+            }
+            
+            const result = {
+                horizontal: [],  // [0, 1, 2] für Zeilen
+                vertical: [],    // [0, 1, 2] für Spalten
+                diagonal: []     // ['main', 'anti'] für Diagonalen
+            };
+            
+            // Horizontale Reihen prüfen (Zeilen)
+            for (let row = 0; row < 3; row++) {
+                if (grid[row * 3] && grid[row * 3 + 1] && grid[row * 3 + 2]) {
+                    result.horizontal.push(row);
+                }
+            }
+            
+            // Vertikale Reihen prüfen (Spalten)
+            for (let col = 0; col < 3; col++) {
+                if (grid[col] && grid[col + 3] && grid[col + 6]) {
+                    result.vertical.push(col);
+                }
+            }
+            
+            // Hauptdiagonale (links oben nach rechts unten)
+            if (grid[0] && grid[4] && grid[8]) {
+                result.diagonal.push('main');
+            }
+            
+            // Nebendiagonale (rechts oben nach links unten)
+            if (grid[2] && grid[4] && grid[6]) {
+                result.diagonal.push('anti');
+            }
+            
+            return result;
+        }
+        
+        // Bingo zurücksetzen
+        function resetBingo() {
+            document.querySelectorAll('.bingo-cell').forEach(cell => {
+                cell.classList.remove('clicked');
+            });
+            score = 0;
+            hasBingo = false;
+            document.getElementById('counter').textContent = '0';
+            
+            // Gespeicherten Spielstand löschen
+            clearGameState();
+            
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'reset',
+                    playerId: playerId,
+                    roomId: THEME_ID
+                }));
+            }
+        }
+        
+        // Leaderboard aktualisieren
+        function updateLeaderboard(players) {
+            const list = document.getElementById('leaderboardList');
+            
+            if (players.length === 0) {
+                list.innerHTML = '<li style="text-align: center; color: #999; padding: 20px;">Warte auf Spieler...</li>';
+                return;
+            }
+            
+            list.innerHTML = players.map((player, index) => {
+                const isBingo = player.bingo ? ' bingo' : '';
+                const bingoEmoji = player.bingo ? ' 🎉' : '';
+                const badge = player.bingo ? '<span class="bingo-badge">BINGO!</span>' : '';
+                
+                // Reihen-Badges erstellen
+                let rowBadges = '';
+                if (player.rows) {
+                    const badges = [];
+                    
+                    // Horizontale Reihen (➡️)
+                    if (player.rows.horizontal && player.rows.horizontal.length > 0) {
+                        badges.push(`<span class="row-badge" title="${player.rows.horizontal.length} horizontale Reihe(n)">➡️${player.rows.horizontal.length}</span>`);
+                    }
+                    
+                    // Vertikale Reihen (⬇️)
+                    if (player.rows.vertical && player.rows.vertical.length > 0) {
+                        badges.push(`<span class="row-badge" title="${player.rows.vertical.length} vertikale Reihe(n)">⬇️${player.rows.vertical.length}</span>`);
+                    }
+                    
+                    // Diagonalen (↘️ und ↙️)
+                    if (player.rows.diagonal && player.rows.diagonal.length > 0) {
+                        badges.push(`<span class="row-badge" title="${player.rows.diagonal.length} Diagonale(n)">↘️${player.rows.diagonal.length}</span>`);
+                    }
+                    
+                    if (badges.length > 0) {
+                        rowBadges = badges.join(' ');
+                    }
+                }
+                
+                return `
+                    <li class="leaderboard-item${isBingo}">
+                        <span class="player-rank">#${index + 1}</span>
+                        <div class="player-details">
+                            <strong>${player.name}${bingoEmoji}</strong>
+                            ${rowBadges ? `<div class="row-badges">${rowBadges}</div>` : ''}
+                        </div>
+                        <span class="player-score">${player.score}/9</span>
+                        ${badge}
+                    </li>
+                `;
+            }).join('');
+        }
+        
+        // Einstellungen anzeigen
+        function showSettings() {
+            document.getElementById('currentPlayerName').textContent = playerName;
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+        
+        // Einstellungen schließen
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+        
+        // Namen ändern
+        function changeName() {
+            const newName = prompt('Neuer Name:', playerName);
+            if (newName && newName.trim() !== '') {
+                playerName = newName.trim();
+                document.getElementById('displayName').textContent = playerName;
+                savePlayerData();
+                closeSettings();
+                
+                // Server informieren (wenn verbunden)
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    // Neu registrieren mit neuem Namen
+                    ws.send(JSON.stringify({
+                        type: 'register',
+                        playerId: playerId,
+                        name: playerName,
+                        roomId: THEME_ID
+                    }));
+                    
+                    // Score aktualisieren damit neuer Name im Leaderboard erscheint
+                    ws.send(JSON.stringify({
+                        type: 'update',
+                        playerId: playerId,
+                        roomId: THEME_ID,
+                        score: score,
+                        bingo: hasBingo
+                    }));
+                }
+            }
+        }
+        
+        // Alle Daten löschen
+        function clearAllData() {
+            if (confirm('Wirklich ALLE Daten löschen? Dies umfasst:\n- Deinen Namen\n- Alle Spielstände (alle Themen)\n\nDu musst danach deinen Namen neu eingeben.')) {
+                // Alle LocalStorage Einträge für Bingo löschen
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith(STORAGE_KEY_PREFIX)) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                
+                closeSettings();
+                
+                // Seite neu laden
+                location.reload();
+            }
+        }
+        
+        // Enter-Taste im Name-Input
+        document.getElementById('playerName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                startGame();
+            }
+        });
+        
+        // Beim Laden: Bingo-Wörter laden und prüfen ob Spieler existiert
+        loadBingoWords().then(() => {
+            checkExistingPlayer();
+        });
+    </script>
+</body>
+</html>

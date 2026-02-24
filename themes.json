@@ -1,0 +1,70 @@
+{
+  "ai-lowcode": {
+    "title": "AI & Low-Code/No-Code",
+    "words": [
+      "Demokratisierung der Entwicklung",
+      "Citizen Developer",
+      "Game Changer",
+      "10x schneller entwickeln",
+      "Keine Programmierkenntnisse nötig",
+      "KI-gestützte Automatisierung",
+      "Disruption der IT-Branche",
+      "Drag & Drop",
+      "Jeder kann jetzt Apps entwickeln"
+    ],
+    "color": "#667eea",
+    "icon": "🤖",
+    "description": "Buzzwords aus der Welt der KI und No-Code-Plattformen"
+  },
+  "agile": {
+    "title": "Agile Methoden",
+    "words": [
+      "Sprint Planning",
+      "Daily Standup",
+      "Retrospektive",
+      "User Story",
+      "Velocity",
+      "Definition of Done",
+      "Scrum Master",
+      "Product Owner",
+      "Backlog Refinement"
+    ],
+    "color": "#10b981",
+    "icon": "🏃",
+    "description": "Scrum, Sprint & Daily Standup Klassiker"
+  },
+  "meeting": {
+    "title": "Meeting Bingo",
+    "words": [
+      "Können alle mich hören?",
+      "Sorry, ich war auf stumm",
+      "Das besprechen wir offline",
+      "Synergieeffekte",
+      "Low hanging fruits",
+      "Win-Win-Situation",
+      "Lasst uns das nochmal alignen",
+      "Circle back",
+      "Deep Dive"
+    ],
+    "color": "#f59e0b",
+    "icon": "💼",
+    "description": "Die üblichen Verdächtigen in jedem Meeting"
+  },
+  "corporate": {
+    "title": "Corporate Buzzwords",
+    "words": [
+      "Think outside the box",
+      "Auf der Meta-Ebene",
+      "Skalierbarkeit",
+      "Digitale Transformation",
+      "Best Practice",
+      "Learnings mitnehmen",
+      "Proof of Concept",
+      "Pain Points",
+      "Stakeholder Management"
+    ],
+    "color": "#ef4444",
+    "icon": "📊",
+    "description": "Business-Sprech vom Feinsten"
+  }
+}

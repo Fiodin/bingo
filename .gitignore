@@ -1,0 +1,19 @@
+# Sensible Daten
+admin-config.json
+
+# Node Modules
+node_modules/
+package-lock.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporäre Dateien
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Optional: Themes nur lokal ändern
+# themes.json
