@@ -42,7 +42,10 @@ function checkAdminAuth(authHeader) {
     try {
         const adminConfig = JSON.parse(fs.readFileSync(ADMIN_CONFIG_FILE, 'utf8'));
         
+        console.log('🔐 Auth-Versuch...');
+        
         if (!authHeader || !authHeader.startsWith('Basic ')) {
+            console.log('❌ Kein Auth-Header');
             return false;
         }
         
@@ -50,10 +53,17 @@ function checkAdminAuth(authHeader) {
         const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
         const [username, password] = credentials.split(':');
         
+        console.log('👤 Username aus Request:', username);
+        console.log('👤 Username aus Config:', adminConfig.username);
+        console.log('🔑 Passwort-Match:', password === adminConfig._password_plain);
+        
         // Einfacher Vergleich (in Produktion bcrypt verwenden!)
-        return username === adminConfig.username && password === adminConfig._password_plain;
+        const result = username === adminConfig.username && password === adminConfig._password_plain;
+        console.log('✅ Auth-Ergebnis:', result);
+        
+        return result;
     } catch (error) {
-        console.error('Auth Error:', error);
+        console.error('❌ Auth Error:', error);
         return false;
     }
 }
