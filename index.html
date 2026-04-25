@@ -85,41 +85,23 @@
             color: #666;
         }
         
-        .theme-card.ai-lowcode {
-            border-color: #667eea;
-        }
-        
-        .theme-card.ai-lowcode:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .theme-card.agile {
-            border-color: #10b981;
-        }
-        
-        .theme-card.agile:hover {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-        
-        .theme-card.meeting {
-            border-color: #f59e0b;
-        }
-        
-        .theme-card.meeting:hover {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        }
-        
-        .theme-card.corporate {
-            border-color: #ef4444;
-        }
-        
-        .theme-card.corporate:hover {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-        
         .theme-card:hover .theme-title,
         .theme-card:hover .theme-description {
             color: white;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            padding: 40px;
+        }
+
+        .error {
+            text-align: center;
+            color: #ef4444;
+            font-size: 16px;
+            padding: 20px;
         }
         
         .footer {
@@ -147,30 +129,8 @@
         <h1>🎯 Bullshit-Bingo</h1>
         <div class="subtitle">Wähle dein Thema</div>
         
-        <div class="themes-grid">
-            <a href="/ai-lowcode" class="theme-card ai-lowcode">
-                <div class="theme-icon">🤖</div>
-                <div class="theme-title">AI & Low-Code/No-Code</div>
-                <div class="theme-description">Buzzwords aus der Welt der KI und No-Code-Plattformen</div>
-            </a>
-            
-            <a href="/agile" class="theme-card agile">
-                <div class="theme-icon">🏃</div>
-                <div class="theme-title">Agile Methoden</div>
-                <div class="theme-description">Scrum, Sprint & Daily Standup Klassiker</div>
-            </a>
-            
-            <a href="/meeting" class="theme-card meeting">
-                <div class="theme-icon">💼</div>
-                <div class="theme-title">Meeting Bingo</div>
-                <div class="theme-description">Die üblichen Verdächtigen in jedem Meeting</div>
-            </a>
-            
-            <a href="/corporate" class="theme-card corporate">
-                <div class="theme-icon">📊</div>
-                <div class="theme-title">Corporate Buzzwords</div>
-                <div class="theme-description">Business-Sprech vom Feinsten</div>
-            </a>
+        <div class="themes-grid" id="themes-grid">
+            <div class="loading">Themen werden geladen…</div>
         </div>
         
         <div class="footer">
@@ -178,5 +138,7 @@
             Jeder Spieler hat sein eigenes Board
         </div>
     </div>
+
+    <script src="/index.js"></script>
 </body>
 </html>

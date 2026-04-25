@@ -33,23 +33,6 @@
     "icon": "🏃",
     "description": "Scrum, Sprint & Daily Standup Klassiker"
   },
-  "meeting": {
-    "title": "Meeting Bingo",
-    "words": [
-      "Können alle mich hören?",
-      "Sorry, ich war auf stumm",
-      "Das besprechen wir offline",
-      "Synergieeffekte",
-      "Low hanging fruits",
-      "Win-Win-Situation",
-      "Lasst uns das nochmal alignen",
-      "Circle back",
-      "Deep Dive"
-    ],
-    "color": "#f59e0b",
-    "icon": "💼",
-    "description": "Die üblichen Verdächtigen in jedem Meeting"
-  },
   "corporate": {
     "title": "Corporate Buzzwords",
     "words": [
@@ -66,5 +49,56 @@
     "color": "#ef4444",
     "icon": "📊",
     "description": "Business-Sprech vom Feinsten"
+  },
+  "computer": {
+    "title": "Computer?",
+    "icon": "🖳",
+    "description": "Ich nix verstehen.",
+    "color": "#9c6507",
+    "words": [
+      "Beim Kollegen geht es?",
+      "Das finf gestern noch",
+      "Da bleibt alles schwarz",
+      "Daist kein Button!",
+      "Passwort zurücksetzen?",
+      "Wie - anmelden?",
+      "Gestern gings noch!",
+      "Kennwort  zurücksetzen?",
+      "Ich hab das Passwort vergessen."
+    ]
+  },
+  "kommunikation": {
+    "title": "Kommunikation",
+    "icon": "🎯",
+    "description": "Was mal gesagt werden muss!",
+    "color": "#9c3ea3",
+    "words": [
+      "Ich mein' ja nur",
+      "Das kann's doch wohl nicht sein",
+      "Darf ich jetzt auch mal was sagen?",
+      "Das sehe ich ganz anders.",
+      "So was gibts?",
+      "Geht nicht, gibt's nicht",
+      "Geht doch",
+      "Ja, aber...",
+      "Ich dag da nix zu"
+    ]
+  },
+  "ausreden": {
+    "title": "Die besten Ausreden",
+    "icon": "🥹",
+    "description": "Ich würde so gern, ich kann aber nicht",
+    "color": "#368779",
+    "words": [
+      "Das ist nicht mein Arbeitsgebiet",
+      "Das hätten Sie mir früher sagen mussen",
+      "Darüber habe ich keine Informationen bekommen",
+      "Da kann ich auch nichts für",
+      "Das verstehe ich nicht",
+      "Davon wusste ich nichts",
+      "Das wurde mir nicht gesagt",
+      "Dafür bin ich nicht zuständig",
+      "Das wrid so nicht funktionieren, weil ..."
+    ]
   }
 }
