@@ -43,3 +43,4 @@ fetch('/api/themes')
         document.getElementById('themes-grid').innerHTML =
             '<div class="error">Themen konnten nicht geladen werden. Bitte Seite neu laden.</div>';
     });
+
