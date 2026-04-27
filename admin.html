@@ -364,7 +364,7 @@
             </div>
             
             <div class="form-group">
-                <label>Bingo-Wörter (eins pro Zeile, genau 9 Stück)</label>
+                <label>Bingo-Wörter (eins pro Zeile, genau 9, 16 oder 25 Stück)</label>
                 <textarea id="themeWords" placeholder="Wort 1
 Wort 2
 Wort 3
@@ -549,8 +549,9 @@ Wort 3
                 return;
             }
             
-            if (words.length !== 9) {
-                alert('Es müssen genau 9 Wörter sein! (Aktuell: ' + words.length + ')');
+            const validSizes = [9, 16, 25];
+            if (!validSizes.includes(words.length)) {
+                alert('Es müssen genau 9, 16 oder 25 Wörter sein! (Aktuell: ' + words.length + ')');
                 return;
             }
             
@@ -638,13 +639,14 @@ Wort 3
             }, 5000);
         }
         
-        // Wörter zählen
         function updateWordCount() {
             const words = document.getElementById('themeWords').value.trim().split('\n').filter(w => w.trim());
             const count = words.length;
+            const validSizes = [9, 16, 25];
+            const isValid = validSizes.includes(count);
             const countEl = document.getElementById('wordCount');
-            countEl.textContent = count + ' / 9 Wörter';
-            countEl.style.color = count === 9 ? '#10b981' : (count > 9 ? '#ef4444' : '#9ca3af');
+            countEl.textContent = count + ' / 9, 16 oder 25 Wörter';
+            countEl.style.color = isValid ? '#10b981' : (count > 25 ? '#ef4444' : '#9ca3af');
         }
         
         // Color Picker Sync

@@ -100,5 +100,22 @@
       "Dafür bin ich nicht zuständig",
       "Das wrid so nicht funktionieren, weil ..."
     ]
+  },
+  "chatbot": {
+    "title": "Chatbotentwicklung",
+    "icon": "🎯",
+    "description": "",
+    "color": "#21a1de",
+    "words": [
+      "Docker-Container startet nicht",
+      "\"Können mich alle hören?\"",
+      "Vektor-Datenbank",
+      "\"Ist das DSGVO-konform?\"",
+      "OpenWebUI",
+      "\"Wir holen alle ab\"",
+      "Mittelstand 4.0",
+      "System-Prompt",
+      "Parsing-Fehler"
+    ]
   }
 }
