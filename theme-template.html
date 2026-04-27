@@ -94,7 +94,7 @@
         
         .bingo-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr); /* wird per JS überschrieben */
             gap: 12px;
             margin-bottom: 20px;
         }
@@ -381,7 +381,7 @@
                 <div class="status disconnected" id="connectionStatus">Verbinde...</div>
             </div>
             
-            <div class="counter">Getroffen: <span id="counter">0</span> / 9</div>
+            <div class="counter">Getroffen: <span id="counter">0</span> / <span id="totalWords">9</span></div>
             
             <div class="bingo-grid" id="bingoGrid">
                 <!-- Wird dynamisch mit JavaScript gefüllt -->
@@ -413,6 +413,7 @@
         let score = 0;
         let hasBingo = false;
         let bingoWords = [];
+        let gridSize = 3; // wird nach dem Laden gesetzt
         
         // LocalStorage Keys
         const STORAGE_KEY_PREFIX = 'bingo_';
@@ -502,13 +503,36 @@
                 const response = await fetch('/api/themes');
                 const themes = await response.json();
                 bingoWords = themes[THEME_ID].words;
-                
-                // Grid mit Wörtern füllen
+
+                // Grid-Größe aus Wortanzahl ableiten
+                gridSize = Math.round(Math.sqrt(bingoWords.length));
+
+                // Grid-CSS dynamisch setzen
                 const grid = document.getElementById('bingoGrid');
-                grid.innerHTML = bingoWords.map(word => 
+                grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+
+                // Counter-Maximum setzen
+                document.getElementById('totalWords').textContent = bingoWords.length;
+
+                // Schriftgröße bei größeren Grids etwas verkleinern
+                if (gridSize >= 4) {
+                    document.querySelectorAll('.bingo-cell') // noch leer, wird unten gesetzt
+                    grid.style.gap = '8px';
+                }
+
+                // Grid mit Wörtern füllen
+                grid.innerHTML = bingoWords.map(word =>
                     `<div class="bingo-cell" onclick="toggleCell(this)">${word}</div>`
                 ).join('');
-                
+
+                // Schriftgröße bei 4x4 anpassen
+                if (gridSize >= 4) {
+                    grid.querySelectorAll('.bingo-cell').forEach(cell => {
+                        cell.style.fontSize = gridSize >= 5 ? '11px' : '12px';
+                        cell.style.padding = '8px';
+                    });
+                }
+
                 // Spielstand wiederherstellen
                 loadGameState();
             } catch (error) {
@@ -617,7 +641,7 @@
             document.getElementById('counter').textContent = score;
             
             const previousBingo = hasBingo;
-            hasBingo = (score === 9);
+            hasBingo = (score === bingoWords.length);
             
             // Prüfe auf Reihen/Spalten/Diagonalen
             const rows = checkRows();
@@ -634,8 +658,9 @@
                     playerId: playerId,
                     roomId: THEME_ID,
                     score: score,
+                    total: bingoWords.length,
                     bingo: hasBingo,
-                    rows: rows  // Neue Info über Reihen
+                    rows: rows
                 }));
             }
         }
@@ -643,43 +668,44 @@
         // Reihen, Spalten und Diagonalen prüfen
         function checkRows() {
             const cells = document.querySelectorAll('.bingo-cell');
+            const total = bingoWords.length;
+            const size = gridSize;
             const grid = [];
-            
-            // Grid als 3x3 Array aufbauen
-            for (let i = 0; i < 9; i++) {
+
+            for (let i = 0; i < total; i++) {
                 grid.push(cells[i].classList.contains('clicked'));
             }
-            
+
             const result = {
-                horizontal: [],  // [0, 1, 2] für Zeilen
-                vertical: [],    // [0, 1, 2] für Spalten
-                diagonal: []     // ['main', 'anti'] für Diagonalen
+                horizontal: [],
+                vertical: [],
+                diagonal: []
             };
-            
-            // Horizontale Reihen prüfen (Zeilen)
-            for (let row = 0; row < 3; row++) {
-                if (grid[row * 3] && grid[row * 3 + 1] && grid[row * 3 + 2]) {
+
+            // Horizontale Reihen
+            for (let row = 0; row < size; row++) {
+                if (Array.from({length: size}, (_, col) => grid[row * size + col]).every(Boolean)) {
                     result.horizontal.push(row);
                 }
             }
-            
-            // Vertikale Reihen prüfen (Spalten)
-            for (let col = 0; col < 3; col++) {
-                if (grid[col] && grid[col + 3] && grid[col + 6]) {
+
+            // Vertikale Spalten
+            for (let col = 0; col < size; col++) {
+                if (Array.from({length: size}, (_, row) => grid[row * size + col]).every(Boolean)) {
                     result.vertical.push(col);
                 }
             }
-            
-            // Hauptdiagonale (links oben nach rechts unten)
-            if (grid[0] && grid[4] && grid[8]) {
+
+            // Hauptdiagonale (links oben → rechts unten)
+            if (Array.from({length: size}, (_, i) => grid[i * size + i]).every(Boolean)) {
                 result.diagonal.push('main');
             }
-            
-            // Nebendiagonale (rechts oben nach links unten)
-            if (grid[2] && grid[4] && grid[6]) {
+
+            // Nebendiagonale (rechts oben → links unten)
+            if (Array.from({length: size}, (_, i) => grid[i * size + (size - 1 - i)]).every(Boolean)) {
                 result.diagonal.push('anti');
             }
-            
+
             return result;
         }
         
@@ -750,7 +776,7 @@
                             <strong>${player.name}${bingoEmoji}</strong>
                             ${rowBadges ? `<div class="row-badges">${rowBadges}</div>` : ''}
                         </div>
-                        <span class="player-score">${player.score}/9</span>
+                        <span class="player-score">${player.score}/${player.total || bingoWords.length}</span>
                         ${badge}
                     </li>
                 `;

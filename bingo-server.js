@@ -184,9 +184,10 @@ function handleAdminAPI(req, res, pathname) {
                         res.end(JSON.stringify({ error: 'Invalid theme format' }));
                         return;
                     }
-                    if (theme.words.length !== 9) {
+                    const validSizes = [9, 16, 25];
+                    if (!validSizes.includes(theme.words.length)) {
                         res.writeHead(400, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: `Theme ${id} must have exactly 9 words` }));
+                        res.end(JSON.stringify({ error: `Theme ${id} must have exactly 9, 16 or 25 words (got ${theme.words.length})` }));
                         return;
                     }
                 }
@@ -325,6 +326,7 @@ wss.on('connection', (ws) => {
                         if (players.has(data.playerId)) {
                             const player = players.get(data.playerId);
                             player.score = data.score;
+                            player.total = data.total || 9;
                             player.bingo = data.bingo;
                             player.rows = data.rows || { horizontal: [], vertical: [], diagonal: [] };
                             players.set(data.playerId, player);
