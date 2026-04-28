@@ -100,7 +100,6 @@
         }
         
         .bingo-cell {
-            aspect-ratio: 1;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             border: 3px solid {{THEME_COLOR}};
             border-radius: 12px;
@@ -108,14 +107,16 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 15px;
-            font-size: 14px;
+            padding: 12px;
+            font-size: 13px;
             font-weight: 600;
             color: #333;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
+            min-height: 70px;
+            word-break: break-word;
+            hyphens: auto;
         }
         
         .bingo-cell:hover {
@@ -323,6 +324,7 @@
             .bingo-cell {
                 font-size: 11px;
                 padding: 8px;
+                min-height: 55px;
             }
             
             h1 {
@@ -525,11 +527,11 @@
                     `<div class="bingo-cell" onclick="toggleCell(this)">${word}</div>`
                 ).join('');
 
-                // Schriftgröße bei 4x4 anpassen
+                // Schriftgröße bei größeren Grids etwas verkleinern
                 if (gridSize >= 4) {
+                    grid.style.gap = '8px';
                     grid.querySelectorAll('.bingo-cell').forEach(cell => {
                         cell.style.fontSize = gridSize >= 5 ? '11px' : '12px';
-                        cell.style.padding = '8px';
                     });
                 }
 

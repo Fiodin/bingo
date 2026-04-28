@@ -103,19 +103,26 @@
   },
   "chatbot": {
     "title": "Chatbotentwicklung",
-    "icon": "🎯",
-    "description": "",
+    "icon": "🤖",
+    "description": "Damit es beim Kurs auch spannend wird!",
     "color": "#21a1de",
     "words": [
+      "RAG (Retrieval Augmented Generation)",
       "Docker-Container startet nicht",
       "\"Können mich alle hören?\"",
       "Vektor-Datenbank",
+      "Prozessorientiertes Wissensmanagement",
+      "Local LLM (Ollama)",
       "\"Ist das DSGVO-konform?\"",
+      "Halluzinationen",
       "OpenWebUI",
       "\"Wir holen alle ab\"",
       "Mittelstand 4.0",
       "System-Prompt",
-      "Parsing-Fehler"
+      "Parsing-Fehler",
+      "\"Lass uns das im Breakout-Room besprechen\"",
+      "Token-Limit",
+      "\"Das ist erst der Anfang\""
     ]
   }
 }
